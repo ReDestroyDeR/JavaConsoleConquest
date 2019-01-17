@@ -17,5 +17,9 @@ public class Tutorial {
         Output.append("\nRight now you can only access basic RIC.OS Commands\n" +
                       "Try writing Help in your terminal\n\n");
         //Input.waitForCommand("help");
+        Output.setPause(true);
+        Output.append("Your tutorial is over here. Creator is to lazy to explain anything.\n" +
+                      "Any troubles? Check readme on github\n" +
+                      "github.com/redestroyder/RicardoConquest vrode kak\n");
     }
 }

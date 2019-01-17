@@ -8,6 +8,7 @@ public class DataManager {
     public static ArrayList<Command> commands = new ArrayList<>();
     public static ArrayList<Computer> computers = new ArrayList<>();
     public static Computer playerComputer;
+    public static Computer connectedTo;
     private String path;
     private final static int[] allPorts =
             {
@@ -29,6 +30,15 @@ public class DataManager {
 
     public void registerCommand(Command command) {
         commands.add(command);
+    }
+
+    public static Computer findComputer(String ip) {
+        for (Computer pc: computers) {
+            if (ip == pc.ip) {
+                return pc;
+            }
+        }
+        return playerComputer;
     }
 
     private static Computer[] generateSolo(int clMin, int clMax, int fwMax, int n,

@@ -1,5 +1,6 @@
 package com.red;
 
+import com.red.cmds.Connect;
 import com.red.cmds.Help;
 
 import javax.naming.spi.DirectoryManager;
@@ -41,8 +42,10 @@ public class General {
         DataManager dm = new DataManager(path);
 
         Help help = new Help();
+        Connect connect = new Connect();
 
         dm.registerCommand(help);
+        dm.registerCommand(connect);
 
         // Tutorial initialization
         Tutorial t = new Tutorial();
