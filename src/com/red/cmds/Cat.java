@@ -2,11 +2,17 @@ package com.red.cmds;
 
 import com.red.*;
 
+import java.io.UnsupportedEncodingException;
+
 public class Cat extends Command {
     public Cat() {
         super.name = "cat";
         super.description = "View file contents";
-        super.commmandKey = "WowOWowoWOowowowoOWOOOOOOOOOOOOWkateWashere".getBytes();
+        try {
+            super.commmandKey = "WowOWowoWOowowowoOWOOOOOOOOOOOOWkateWashere".getBytes("UTF-16").toString();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         super.common = true;
     }
 
@@ -15,15 +21,18 @@ public class Cat extends Command {
         Computer computer = DataManager.connectedTo;
 
         VirtualFile target = null;
-        for (VirtualFile virtualFile: computer.getDirectory().getContents()) {
-            if (virtualFile == null) {
-                continue;
-            }
-            if (virtualFile.fileName.equalsIgnoreCase(args[0])) {
-                target = virtualFile;
-                break;
+        if (computer.getDirectory() != null) {
+            for (VirtualFile virtualFile: computer.getDirectory().getContents()) {
+                if (virtualFile == null) {
+                    continue;
+                }
+                if (virtualFile.fileName.equalsIgnoreCase(args[0])) {
+                    target = virtualFile;
+                    break;
+                }
             }
         }
+
 
         if (target != null) {
             Output.append(String.format("Contents of file %s\n", target.fileName));

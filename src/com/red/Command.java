@@ -7,7 +7,7 @@ public class Command implements Serializable {
 
     public String name;
     public String description;
-    public byte[] commmandKey;
+    public String commmandKey;
     public boolean common;
 
     public Command() {

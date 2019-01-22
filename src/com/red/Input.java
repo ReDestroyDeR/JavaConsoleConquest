@@ -52,7 +52,7 @@ public class Input implements Runnable {
         VirtualDirectory system = DataManager.playerComputer.changeDirectory("system/");
         VirtualDirectory programs = DataManager.playerComputer.changeDirectory("home/programs");
 
-        byte[] commandCode;
+        String commandCode;
         for (Command command: DataManager.commands) {
             if (command.name.equalsIgnoreCase(args[0])) {
                 commandCode = command.commmandKey;
@@ -61,7 +61,7 @@ public class Input implements Runnable {
                     if (virtualFile == null) {
                         continue;
                     }
-                    String[] lines = Arrays.toString(commandCode).split("\n");
+                    String[] lines = commandCode.split("\n");
                     for (int i = 0; i < virtualFile.lines.length; i++) {
                         if (virtualFile.lines[i].equalsIgnoreCase(lines[i])) {
                             found = true;
@@ -79,7 +79,7 @@ public class Input implements Runnable {
                         if (virtualFile == null) {
                             continue;
                         }
-                        String[] lines = Arrays.toString(commandCode).split("\n");
+                        String[] lines = commandCode.split("\n");
                         for (int i = 0; i < virtualFile.lines.length; i++) {
                             if (virtualFile.lines[i].equalsIgnoreCase(lines[i])) {
                                 found = true;

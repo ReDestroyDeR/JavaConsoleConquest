@@ -2,13 +2,18 @@ package com.red.cmds;
 
 import com.red.*;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 public class Ls extends Command {
     public Ls() {
         super.name = "ls";
         super.description = "View directory contents";
-        super.commmandKey = "DrrrDrrrDrrrRoundDirectoryConentViewer247365".getBytes();
+        try {
+            super.commmandKey = "DrrrDrrrDrrrRoundDirectoryConentViewer247365".getBytes("UTF-16").toString();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         super.common = true;
     }
 

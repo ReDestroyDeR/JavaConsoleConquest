@@ -2,11 +2,17 @@ package com.red.cmds;
 
 import com.red.*;
 
+import java.io.UnsupportedEncodingException;
+
 public class Cd extends Command {
     public Cd() {
         super.name = "cd";
         super.description = "Change current directory";
-        super.commmandKey = "RTELPRTetpeRPEOTETEOTOEROEOROETOPLFEFteleport".getBytes();
+        try {
+            super.commmandKey = "RTELPRTetpeRPEOTETEOTOEROEOROETOPLFEFteleport".getBytes("UTF-16").toString();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         super.common = true;
     }
 

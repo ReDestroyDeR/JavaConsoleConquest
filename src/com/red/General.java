@@ -3,6 +3,7 @@ package com.red;
 import com.red.cmds.*;
 
 import javax.naming.spi.DirectoryManager;
+import javax.sound.sampled.Port;
 import javax.swing.*;
 import java.io.File;
 import java.net.URISyntaxException;
@@ -47,6 +48,7 @@ public class General {
         Cat cat = new Cat();
         Ls ls = new Ls();
         InternalStatus internalStatus = new InternalStatus();
+        PortHack portHack = new PortHack();
 
         dm.registerCommand(help);
         dm.registerCommand(connect);
@@ -55,6 +57,8 @@ public class General {
         dm.registerCommand(scp);
         dm.registerCommand(ls);
         dm.registerCommand(internalStatus);
+        dm.registerCommand(portHack);
+
 
         // Tutorial initialization
         DataManager.playerComputer = DataManager.generateComputers(ComputerType.CUSTOM, -1, "100;100;5000;50000;50000;0;")[0];

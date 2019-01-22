@@ -86,17 +86,17 @@ public class Computer implements Serializable {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                Output.append(String.format("Breaking port %s. Time left - %s", port, t-i));
+                Output.append(String.format("Breaking port %s. Time left - %s\n", port, t-i));
             }
 
             if (fail) {
-                Output.append("Breakthrough failed. Disconnecting");
+                Output.append("Breakthrough failed. Disconnecting\n");
             } else {
-                Output.append(String.format("Gained access to port %s", port));
+                Output.append(String.format("Gained access to port %s\n", port));
                 ports[index] = 0;
             }
         } else {
-            Output.append("Whoopsie.. Wrong port");
+            Output.append("Whoopsie.. Wrong port\n");
         }
     }
 
@@ -105,33 +105,39 @@ public class Computer implements Serializable {
             boolean fail = false;
             int itterupt = Math.round((float) DataManager.playerComputer.cpuPowerLevel / fireWall);
             if (itterupt > 60) fail = true;
-            Output.append(String.format("Firewall detected! Continue in t-%s", itterupt));
+            Output.append(String.format("Firewall detected! Continue in t-%s\n", itterupt));
             try {
                 Thread.sleep(itterupt);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             if (fail) {
-                Output.append("Firewall breakthrough is failed. Disconnecting");
+                Output.append("Firewall breakthrough is failed. Disconnecting\n");
                 return false;
             } else {
-                Output.append("Firewall is down");
+                Output.append("Firewall is down\n");
                 fireWall = 0;
                 return true;
             }
         } else {
-            Output.append("Firewall is down");
+            Output.append("Firewall is down\n");
             return true;
         }
     }
 
-    public String breakThrough(int port) {
+    public void breakThrough(int port) {
+        boolean found = false;
         for (int i = 0; i < ports.length; i++) {
             if (port == ports[i]) {
                 portDefence(port, i);
+                found = true;
+                break;
             }
         }
-        return "Wrong port - " + port;
+        if (!found) {
+            Output.append(String.format("Wrong port - %s\n", port));
+        }
+
     }
 
     public VirtualDirectory getDirectory() {
@@ -225,7 +231,8 @@ public class Computer implements Serializable {
                 }
 
                 // Port list output here
-                Output.append("Can't connect. Port list:\n");
+
+                Output.append("Port list:\n");
                 for (int port: ports) {
                     if (port != 0) {
                         Output.append(String.format("* %s\n", port));
@@ -233,6 +240,15 @@ public class Computer implements Serializable {
                         Output.append("* Port broken!\n");
                         portsN--;
                     }
+                    if (portsN <= 0) {
+                        Output.append(String.format("Gained access to %s\n", ip));
+                        broken = true;
+                        return connect();
+                    }
+                }
+                if (portsN > 0) {
+                    Output.append("Connection failed!\n");
+                    Output.append(String.format("Need %s more ports to be broken\n", portsN));
                 }
             } else {
                 broken = true;
@@ -244,16 +260,16 @@ public class Computer implements Serializable {
     }
 
     public void addNewCommand(Command command) { // This is for felling that computers are kinda natural
-        byte[] commmandKey = command.commmandKey;
+        String commmandKey = command.commmandKey;
         VirtualDirectory programs = accessFileSystem("home/programs/");
         VirtualDirectory system = accessFileSystem("system/");
         VirtualFile commandFile;
         if (command.common) {
             commandFile = new VirtualFile(system,
-                    command.name + ".sh", Arrays.toString(commmandKey).split("\n"));
+                    command.name + ".sh", commmandKey.split("\n"));
         } else {
             commandFile = new VirtualFile(programs,
-                    command.name + ".sh", Arrays.toString(commmandKey).split("\n"));
+                    command.name + ".sh", commmandKey.split("\n"));
         }
     }
 

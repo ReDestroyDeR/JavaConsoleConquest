@@ -76,7 +76,7 @@ public class DataManager extends Thread {
     }
 
     public static Computer findComputer(String ip) {
-        Computer toReturn = playerComputer;
+        Computer toReturn = null;
         for (Computer pc: computers) {
             if (ip.equalsIgnoreCase(pc.ip)) {
                 toReturn = pc;
@@ -84,6 +84,22 @@ public class DataManager extends Thread {
             }
         }
         return toReturn;
+    }
+
+    private static int newPort(Random random, int[] ports) {
+        int x = allPorts[random.nextInt(allPorts.length-1)];
+        boolean contains = false;
+        for (int port: ports) {
+            if (x == port) {
+                contains = true;
+                break;
+            }
+        }
+        if (!contains) {
+            return x;
+        } else {
+            return newPort(random, ports);
+        }
     }
 
     private static Computer[] generateSolo(int clMin, int clMax, int fwMax, int n,
@@ -105,8 +121,11 @@ public class DataManager extends Thread {
             if (cl != 0) speed = random.nextInt(speedMax*cl)+speedMin;
             else speed = random.nextInt(speedMax)+speedMin;
 
-            int[] ports = new int[random.nextInt(portsN)+1];
-            System.arraycopy(allPorts, 0, ports, 0, ports.length);
+            int length = random.nextInt(portsN)+1;
+            int[] ports = new int[length];
+            for (int port = 0; port < length; port++) {
+                ports[port] = newPort(random, ports);
+            }
 
             Computer computer = new Computer(fw, cl, speed, cpu, gpu, distance+delta, ports);
             computers.add(computer);

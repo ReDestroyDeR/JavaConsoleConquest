@@ -4,12 +4,18 @@ import com.red.Command;
 import com.red.DataManager;
 import com.red.Output;
 
+import java.io.UnsupportedEncodingException;
+
 public class InternalStatus extends Command {
 
     public InternalStatus() {
         super.name = "status";
         super.description = "Check connection and other statuses";
-        super.commmandKey = "USEEMENROLLLLLLLLLwwwwaaing".getBytes();
+        try {
+            super.commmandKey = "USEEMENROLLLLLLLLLwwwwaaing".getBytes("UTF-16").toString();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         super.common = true;
     }
 
