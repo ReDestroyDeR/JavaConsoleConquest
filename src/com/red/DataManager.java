@@ -1,15 +1,20 @@
 package com.red;
 
+import javax.naming.spi.DirectoryManager;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 
-public class DataManager {
+public class DataManager extends Thread {
     public static ArrayList<Command> commands = new ArrayList<>();
     public static ArrayList<Computer> computers = new ArrayList<>();
     public static Computer playerComputer;
     public static Computer connectedTo;
-    private String path;
+
+
+    private static String directoryPath;
     private final static int[] allPorts =
             {
                     20, // FTP
@@ -24,8 +29,46 @@ public class DataManager {
                     8080 // HTTP_alt
             };
 
-    public DataManager(String Gpath) {
-        path = Gpath;
+    public static Object[] returnData(SerializableType type) {
+        try {
+            FileInputStream fileInputStream = new FileInputStream(directoryPath + "/"
+                                                                  + type.toString() + ".dat");
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+            Object[] objects = new Object[1024];
+            for (int i = 0; i < objects.length; i++) {
+                try {
+                    Object object = objectInputStream.readObject();
+                    objects[i] = object;
+                } catch (EOFException e) {
+                    break;
+                }
+            }
+            objectInputStream.close();
+            return objects;
+        } catch (IOException | ClassNotFoundException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void writeData(Object[] objects, SerializableType type) {
+        String path = directoryPath + "/" + type.toString() + ".dat";
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(path);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            for (Object object: objects) {
+                objectOutputStream.writeObject(object);
+            }
+            objectOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public DataManager(String path) {
+        directoryPath = path;
+        File file = new File(path);
+        if (!file.exists()) file.mkdir();
     }
 
     public void registerCommand(Command command) {
@@ -33,12 +76,14 @@ public class DataManager {
     }
 
     public static Computer findComputer(String ip) {
+        Computer toReturn = playerComputer;
         for (Computer pc: computers) {
-            if (ip == pc.ip) {
-                return pc;
+            if (ip.equalsIgnoreCase(pc.ip)) {
+                toReturn = pc;
+                break;
             }
         }
-        return playerComputer;
+        return toReturn;
     }
 
     private static Computer[] generateSolo(int clMin, int clMax, int fwMax, int n,
@@ -56,7 +101,10 @@ public class DataManager {
             boolean minusDelta = random.nextBoolean();
             int delta = random.nextInt(1000);
             if (minusDelta) delta = -delta;
-            int speed = random.nextInt(speedMax*cl)+speedMin;
+            int speed = 0;
+            if (cl != 0) speed = random.nextInt(speedMax*cl)+speedMin;
+            else speed = random.nextInt(speedMax)+speedMin;
+
             int[] ports = new int[random.nextInt(portsN)+1];
             System.arraycopy(allPorts, 0, ports, 0, ports.length);
 
@@ -68,31 +116,31 @@ public class DataManager {
         return toReturn;
     }
 
-    public static Computer[] generateComputers(String type, int n) {
+    public static Computer[] generateComputers(ComputerType type, int n, String customDataString) {
         Random random = new Random();
         switch (type) {
-            case "Corporation":
-                return generateSolo(1, 99, 10, random.nextInt(7)+3,
+            case CORPORATION:
+                return generateSolo(1, 99, 10, n,
                         10000, 10000, 1000, 500, 1000, 500,
-                        random.nextInt(5)+4);
+                        5);
 
-            case "District":
-                return generateSolo(0, 5, 5, random.nextInt(7)+3,
+            case DISTRICT:
+                return generateSolo(0, 5, 5, n,
                         6000, 6000, 500, 250, 500, 50,
-                        random.nextInt(3)+2);
+                        3);
 
-            case "Government":
-                return generateSolo(50, 249, 100, random.nextInt(1)+2,
+            case GOVERNMENT:
+                return generateSolo(50, 249, 100, n,
                         20000, 5000, 7000, 500, 10000, 1000,
-                        random.nextInt(3)+1);
+                        6);
 
-            case "Hacker":
-                return generateSolo(50, 249, 100, 1,
+            case HACKER:
+                return generateSolo(50, 249, 100, n,
                         7000, 4000, 7000, 100, 2000, 1000,
-                        random.nextInt(3)+1);
+                        7);
 
             default: // Custom
-                String[] customData = type.split(";");
+                String[] customData = customDataString.split(";");
                 int fw = Integer.parseInt(customData[0]);
                 int cl = Integer.parseInt(customData[1]);
                 int speed = Integer.parseInt(customData[2]);

@@ -1,12 +1,14 @@
 package com.red;
 
 import javax.xml.crypto.Data;
+import java.io.Serializable;
 
-public class Command {
+public class Command implements Serializable {
 
     public String name;
     public String description;
-    public boolean active;
+    public byte[] commmandKey;
+    public boolean common;
 
     public Command() {
     }

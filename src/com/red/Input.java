@@ -1,5 +1,9 @@
 package com.red;
 
+import javax.xml.crypto.Data;
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.function.Predicate;
 
@@ -25,6 +29,13 @@ public class Input implements Runnable {
     public void run() {
         System.out.println("Input thread has been created");
         getInput();
+        try {
+            // KOSTIL found! Crashes if first input is empty.
+            System.setIn(new ByteArrayInputStream("Anti crash text".getBytes("UTF-8")));
+            System.setIn(System.in);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 
     private Scanner in = new Scanner(System.in);
@@ -32,16 +43,78 @@ public class Input implements Runnable {
     @SuppressWarnings("InfiniteRecursion")
     private void getInput() {
         lastInput = in.nextLine();
+        String[] args = lastInput.split(" ");
+        if (args.length == 0) {
+            return;
+        }
 
         // Command handling mechanism
-        for (int i = 0; i < DataManager.commands.size(); i++) {
-            Command c = DataManager.commands.get(i);
-            if (!c.active) continue;
-            if (c.name.equalsIgnoreCase(lastInput.toLowerCase())) {
-                c.trigger();
-                break;
+        VirtualDirectory system = DataManager.playerComputer.changeDirectory("system/");
+        VirtualDirectory programs = DataManager.playerComputer.changeDirectory("home/programs");
+
+        byte[] commandCode;
+        for (Command command: DataManager.commands) {
+            if (command.name.equalsIgnoreCase(args[0])) {
+                commandCode = command.commmandKey;
+                boolean found = false;
+                for (VirtualFile virtualFile: system.getContents()) {
+                    if (virtualFile == null) {
+                        continue;
+                    }
+                    String[] lines = Arrays.toString(commandCode).split("\n");
+                    for (int i = 0; i < virtualFile.lines.length; i++) {
+                        if (virtualFile.lines[i].equalsIgnoreCase(lines[i])) {
+                            found = true;
+                        } else {
+                            found = false;
+                            break;
+                        }
+                    }
+                    if (found) {
+                        break;
+                    }
+                }
+                if (!found) {
+                    for (VirtualFile virtualFile: programs.getContents()) {
+                        if (virtualFile == null) {
+                            continue;
+                        }
+                        String[] lines = Arrays.toString(commandCode).split("\n");
+                        for (int i = 0; i < virtualFile.lines.length; i++) {
+                            if (virtualFile.lines[i].equalsIgnoreCase(lines[i])) {
+                                found = true;
+                            } else {
+                                found = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (found) {
+
+                    // Ping simulation
+                    if (!command.name.equalsIgnoreCase("connect")) {
+                        int ping = DataManager.connectedTo.getDistance()/DataManager.playerComputer.getInternetSpeed()*10;
+                        try {
+                            Thread.sleep(ping);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if (args.length > 1) {
+                        String[] realArgs = new String[args.length-1];
+                        System.arraycopy(args, 1, realArgs, 0, args.length-1);
+                        command.trigger(realArgs);
+                    } else {
+                        command.trigger();
+                    }
+                    break;
+                }
             }
         }
+
+
 
         if (Output.getPause()) {
             Output.setPause(false);
